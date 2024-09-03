@@ -17,32 +17,36 @@ describe('AppController (e2e)', () => {
     appServer = app.getHttpServer();
   });
 
-  it('/user/create (POST) CREATE NEW USER', () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
+  const testUser = {
+    name: 'test',
+    email: "lalala@gmail.com",
+    password: "password",
+  };
 
+  it('/user/create (POST) CREATE NEW USER', () => {
     return request(app.getHttpServer())
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
+      .send(testUser)
       .expect(201)
       .expect((res) => {
         const user = res.body;
-        expect(user.name).toBe(userName);
-        expect(user.email).toBe(userEmail);
-        expect(user.password).toBe(userPassword);
+        expect(user.name).toBe(testUser.name);
+        expect(user.email).toBe(testUser.email);
+        expect(user.password).toBe(testUser.password);
       });
   });
 
-  it('/user/find/:id (GET) GET USER', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
+  it('/user/create (POST) CREATE NEW USER INVALID ARGS', () => {
+    return request(app.getHttpServer())
+      .post('/user/create')
+      .send({ ...testUser, name: "" })
+      .expect(400);
+  });
 
+  it('/user/find/:id (GET) GET USER', async () => {
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     return request(appServer)
@@ -50,9 +54,9 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect((res) => {
         const user = res.body;
-        expect(user.name).toBe(userName);
-        expect(user.email).toBe(userEmail);
-        expect(user.password).toBe(userPassword);
+        expect(user.name).toBe(testUser.name);
+        expect(user.email).toBe(testUser.email);
+        expect(user.password).toBe(testUser.password);
       });
   });
 
@@ -66,19 +70,14 @@ describe('AppController (e2e)', () => {
   });
 
   it('/user/login (POST) LOGIN', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
-
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     return request(appServer)
       .post('/user/login')
-      .send({ id: newUser.id, password: userPassword })
+      .send({ id: newUser.id, password: testUser.password })
       .expect(201)
       .expect((res) => {
         expect(res.body.access_token).toBeDefined();
@@ -86,14 +85,9 @@ describe('AppController (e2e)', () => {
   });
 
   it('/user/login (POST) LOGIN WRONG PASSWORD', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
-
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     return request(appServer)
@@ -103,20 +97,14 @@ describe('AppController (e2e)', () => {
   });
 
   it('/user/delete (DELETE) DELETE USER', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
-
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     const access_token = await request(appServer)
       .post('/user/login')
-      .send({ id: newUser.id, password: userPassword })
-      .expect(201)
+      .send({ id: newUser.id, password: testUser.password })
       .then((res) => res.body.access_token);
 
     return request(appServer)
@@ -127,14 +115,9 @@ describe('AppController (e2e)', () => {
   });
 
   it('/user/delete (DELETE) DELETE USER WRONG TOKEN', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
-
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     return request(appServer)
@@ -145,20 +128,14 @@ describe('AppController (e2e)', () => {
   });
 
   it('/user/delete (DELETE) DELETE USER NOT FOUND', async () => {
-    const userName = 'test';
-    const userEmail = 'lalala@gmail.com';
-    const userPassword = 'password';
-
     const newUser = await request(appServer)
       .post('/user/create')
-      .send({ name: userName, email: userEmail, password: userPassword })
-      .expect(201)
+      .send(testUser)
       .then((res) => res.body);
 
     const access_token = await request(appServer)
       .post('/user/login')
-      .send({ id: newUser.id, password: userPassword })
-      .expect(201)
+      .send({ id: newUser.id, password: testUser.password })
       .then((res) => res.body.access_token);
 
     return request(appServer)

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -33,6 +34,15 @@ export class UserController {
   async createUser(
     @Body() createUserDto: Pick<User, 'password' | 'name' | 'email' | 'phone'>,
   ): Promise<User> {
+    if (createUserDto.password.length < 3)
+      throw new BadRequestException('Password length must be greater than 3');
+
+    if (createUserDto.name === "")
+      throw new BadRequestException('Name cannot be empty');
+
+    if (createUserDto.email === "")
+      throw new BadRequestException('Email cannot be empty');
+
     return this.userService.addOne(createUserDto);
   }
 
