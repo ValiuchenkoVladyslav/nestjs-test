@@ -17,7 +17,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('find/:id')
-  async findUser(@Param('id') id: number): Promise<Omit<User, 'password'>> {
+  async findUser(@Param('id') id: User['id']): Promise<Omit<User, 'password'>> {
     const user = await this.userService.findOne(id);
 
     if (!user) {
@@ -31,19 +31,19 @@ export class UserController {
 
   @Post('create')
   async createUser(
-    @Body() createUserDto: { name: string; email: string; password: string },
+    @Body() createUserDto: Pick<User, 'password' | 'name' | 'email' | 'phone'>,
   ): Promise<User> {
     return this.userService.addOne(createUserDto);
   }
 
   @Post('login')
-  signIn(@Body() signInDto: { id: number; password: string }) {
+  signIn(@Body() signInDto: Pick<User, 'id' | 'password'>) {
     return this.userService.signIn(signInDto.id, signInDto.password);
   }
 
   @UseGuards(AuthGuard)
   @Delete('delete/:id')
-  async deleteUser(@Param('id') id: number) {
+  async deleteUser(@Param('id') id: User['id']) {
     const deleted_rows = await this.userService.deleteUser(id);
 
     if (!deleted_rows) {

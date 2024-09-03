@@ -11,30 +11,27 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async addOne(user: {
-    name: string;
-    email: string;
-    phone?: string;
-    password: string;
-  }): Promise<User> {
+  async addOne(
+    user: Pick<User, 'name' | 'email' | 'phone' | 'password'>,
+  ): Promise<User> {
     return this.userModel.create(user);
   }
 
-  async findOne(id: number): Promise<User | null> {
+  async findOne(id: User['id']): Promise<User | null> {
     return this.userModel.findOne({
       where: { id },
     });
   }
 
-  async deleteUser(id: number): Promise<number> {
+  async deleteUser(id: User['id']): Promise<number> {
     return await this.userModel.destroy({
       where: { id },
     });
   }
 
   async signIn(
-    id: number,
-    password: string,
+    id: User['id'],
+    password: User['password'],
   ): Promise<{ access_token: string }> {
     const user = await this.findOne(id);
     if (!user) {
